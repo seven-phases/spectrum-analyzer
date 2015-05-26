@@ -51,7 +51,7 @@ struct LayerBase : Window, ui::Layer, widget::Parent
 
     bool msgHook(LRESULT&, UINT, WPARAM, LPARAM) {return false;}
 
-    // fixme, inherited objects are already destroyed
+    // NOTE: inherited objects are already destroyed
     // here so they won't receive their close()
     ~LayerBase() {this->destroy();}
 
