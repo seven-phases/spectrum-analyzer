@@ -63,7 +63,7 @@ struct Resizer : ui::native::LayerBase
             trace.full("msgHook: WM_EXITSIZEMOVE\n");
             resizingNow = 0;
             // always return focus to the parent:
-            ::SwitchToThisWindow(parent, 0);
+            ::SetForegroundWindow(parent);
             break;
 
         case WM_NCHITTEST:
