@@ -604,33 +604,6 @@ protected:
 
 // ............................................................................
 
-struct NumEdit_ : Edit
-{
-    enum {style_ = ES_RIGHT};
-
-    int  value() const {return stepper_->value();}
-    void value(int v)  {stepper_->value(v);}
-    int  range() const {return stepper_->range();}
-    void range(int v)  {stepper_->range(v);}
-
-    typedef Ptr<Stepper> Stepper;
-    Stepper stepper() const {return stepper_;}
-
-    void ctor(Parent* parent, Handle h)
-    {
-        Base::ctor(parent, h);
-        if (!stepper_)
-            stepper_ = Ctor<Stepper>
-                (parent, Rect(0, 0, 16, 21));
-        stepper_->buddy(handle);
-    }
-
-protected:
-    Stepper stepper_;
-};
-
-// ............................................................................
-
 struct Meter : Base
 {
     static const char* class_() {return PROGRESS_CLASS;}
@@ -1071,12 +1044,6 @@ private:
             parent->attach(widget);
             return widget;
         }
-
-        /*template <typename T>
-        operator T* () const
-        {
-            return Ptr<T>(*this);
-        }*/
 
     private:
 

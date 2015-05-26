@@ -83,14 +83,6 @@ struct Display : ui::native::LayerBase, DrawData
         gl::drawCurve_<16>(p, n + 2, .5f);
     }
 
-    /*template <bool Limit>
-    static int extrapolateEdge(int p1, int p2)
-    {
-        if (!Limit || (p1 > p2))
-            p1 += p1 - p2;
-        return p1;
-    }*/
-
     // ........................................................................
 
     void drawPeaks() const

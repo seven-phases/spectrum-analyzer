@@ -68,12 +68,6 @@ struct Compound : widget::Interface
         text_->callback.to(this, &Compound::textAction);
     }
 
-    /*void ctor(widget::Stepper* m, AnyWidget t, AnyWidget l)
-    {
-        m->buddy(t->expose());
-        ctor(AnyWidget(m), t, l);
-    }*/
-
 private:
     void valueAction(int) {callback(value());}
     void textAction(int)  {textCallback(0);}
@@ -95,6 +89,10 @@ private:
 };
 
 // ............................................................................
+
+// FIXME: this (the "Settings/Colors/Prefs" window) *was* the VST editor window 
+// before 1.05, but now it's not so the name is misleading. Rename.
+// (I can't invent a suitable name right now though, hmm... "Confiburgurator"?)
 
 struct Editor : LayerBase
 {

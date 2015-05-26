@@ -40,8 +40,6 @@ struct Window
         RECT& r        = wp.rcNormalPosition;
         r.right        = r.left + w + m.w;
         r.bottom       = r.top  + h + m.h;
-        /*if (!::IsWindowVisible(handle))
-            wp.showCmd = SW_HIDE;*/
         ::SetWindowPlacement(handle, &wp);
     }
 

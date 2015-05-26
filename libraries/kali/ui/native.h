@@ -20,7 +20,6 @@ typedef Ptr <widget::ColorWell> ColorWell;
 typedef Ptr <widget::TextRight> TextRight;
 typedef Ptr <widget::TextCopy>  TextCopy;
 typedef Ptr <widget::Toolbar>   Toolbar;
-typedef Ptr <widget::NumEdit_>  NumEdit_; // deprecated
 typedef Ptr <widget::Stepper>   Stepper;
 typedef Ptr <widget::Button>    Button;
 typedef Ptr <widget::Toggle>    Toggle;
