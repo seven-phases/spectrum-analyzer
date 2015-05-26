@@ -1,0 +1,21 @@
+
+#include <winres.h>
+
+#define APSTUDIO_READONLY_SYMBOLS
+
+// not much sense to include icon since it's won't
+// appear anywhere since 1.05:
+// main icon "main.ico"
+
+// Manifest note:
+// Actually it's really necessary only for certain old hosts that force
+// some ancient comctl32 version and break a few things in Settin window
+// (trasparent bitmaps etc.)
+
+#define MANIFEST_RESOURCE_ID 2
+MANIFEST_RESOURCE_ID RT_MANIFEST "manifest"
+
+#include "dialogs.rc"
+#include "version.rc"
+
+#undef APSTUDIO_READONLY_SYMBOLS

@@ -1,0 +1,3 @@
+
+set WDKROOT=
+set VSTSDKROOT=

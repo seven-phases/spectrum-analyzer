@@ -1,0 +1,16 @@
+# common
+*~
+~*
+
+# OS and tools
+thumbs.db
+
+# project specific
+paths.cmd
+obj/
+*.dll
+*.zip
+*.tmp
+*.log
+*.wrn
+*.asm

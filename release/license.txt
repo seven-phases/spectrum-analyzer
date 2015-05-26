@@ -1,0 +1,19 @@
+
+Copyright (c) 2009-2015 Max Mikhailov. All rights reserved.
+
+'Seven Phases Spectrum Analyzer' End User License Agreement
+
+This software is provided free of charge but the author retains copyright. 
+You are not allowed to make any copies or redistribute this software including
+but not limited to making the software available for download or making this 
+software part of a software compilation.
+
+You are not allowed to sell or to rent this software. You are not allowed 
+to reverse engineer this software.
+
+You are allowed to use this software for any artistic application including
+commercial music production.
+
+This software is provided 'AS IS', without any express or implied warranty.  
+In no event will the author be held liable for any damages arising from the
+use of this software.

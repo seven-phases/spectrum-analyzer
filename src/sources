@@ -1,0 +1,38 @@
+
+TARGETNAME=$(NAME_SHORT)
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+UMTYPE=windows
+
+DLLDEF=main.def
+
+MSC_WARNING_LEVEL=/W4 /WX /WL
+MSC_OPTIMIZATION=
+386_OPTIMIZATION=/arch:SSE
+# now a bit of humor:
+AMD64_OPTIMIZATION=/favor:INTEL64
+USER_C_FLAGS=/Oxtiyb2 /GLS- /fp:fast /DDBG=0 /FA
+LINKER_FLAGS=/LTCG
+
+NOT_LEAN_AND_MEAN=1
+USE_MSVCRT=1
+386_STDCALL=0
+
+# PRECOMPILED_CXX=1
+# PRECOMPILED_INCLUDE=includes.h
+
+SOURCES=main.cpp vstsdk-wrapper.cpp main.rc
+
+INC=..\libraries
+INCLUDES=rc;            \
+         $(INC);        \
+         $(INC)\win;    \
+         $(VSTSDKROOT); \
+         $(VSTSDKROOT)\public.sdk\source\vst2.x
+
+
+TARGETLIBS=$(SDK_LIB_PATH)\kernel32.lib \
+           $(SDK_LIB_PATH)\user32.lib   \
+           $(SDK_LIB_PATH)\gdi32.lib    \
+           $(SDK_LIB_PATH)\advapi32.lib \
+           $(SDK_LIB_PATH)\opengl32.lib \
