@@ -8,9 +8,7 @@ You are not allowed to make any copies or redistribute this software including
 but not limited to making the software available for download or making this 
 software part of a software compilation.
 
-You are not allowed to sell or to rent this software. You are not allowed 
-to reverse engineer this software.
-
+You are not allowed to sell or to rent this software.
 You are allowed to use this software for any artistic application including
 commercial music production.
 

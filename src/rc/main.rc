@@ -3,14 +3,15 @@
 
 #define APSTUDIO_READONLY_SYMBOLS
 
-// not much sense to include icon since it's won't
-// appear anywhere since 1.05:
+// icon note: 
+// not much sense to put icon into the dll since it's not shown
+// anywhere since 1.05:
 // main icon "main.ico"
 
-// Manifest note:
+// manifest note:
 // Actually it's really necessary only for certain old hosts that force
-// some ancient comctl32 version and break a few things in Settin window
-// (trasparent bitmaps etc.)
+// some ancient comctl32 version and break a few things in the Settings 
+// window (transparent bitmaps etc.)
 
 #define MANIFEST_RESOURCE_ID 2
 MANIFEST_RESOURCE_ID RT_MANIFEST "manifest"

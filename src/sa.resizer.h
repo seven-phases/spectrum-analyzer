@@ -16,7 +16,7 @@ using namespace kali;
     tempting initially, but now it turns out to be too Host/OS versions/settings
     depended, and what's most important, it brings too many barely ever fixable
     side-effects/issues in certain hosts. It becomes a real nightmare to test/
-    improve/maintain this method, so I'm about to give it up in favour of
+    improve/maintain this method, so I'm about to give it up in favor of
     something more safe and simple.
     (Trivial "resize-triangle"/"near-edges-trigger" with in-Editor-mouse-tracking
     should be enough and will be equally usable from a user point of view.)
