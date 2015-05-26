@@ -6,6 +6,7 @@
 #include <commctrl.h>
 #include "kali/window.h"
 #include "kali/ui/native/widgets.h"
+#include "kali/resources.h"
 
 // ............................................................................
 
@@ -32,10 +33,12 @@ inline void    app::useThreads()       {}
 
 inline void app::initGraphics()
 {
+#if defined KALI_GRAPHICS_INCLUDED
     if (details_->graphics_)
         return;
     autorelease(new graphics::Initializer);
     details_->graphics_ = true;
+#endif
 }
 
 // ............................................................................

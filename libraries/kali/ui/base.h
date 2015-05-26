@@ -2,7 +2,7 @@
 #ifndef KALI_UI_BASE_INCLUDED
 #define KALI_UI_BASE_INCLUDED
 
-#include "kali/graphics.h"
+// #include "kali/graphics.h"
 
 // ............................................................................
 
@@ -49,7 +49,10 @@ struct Respondent
     virtual bool mouse(UpDown, int, int) = 0;
     virtual bool mouseMove(int, int)     = 0;
     virtual Rect drawRect() const        = 0;
+
+#if defined KALI_GRAPHICS_INCLUDED
     virtual void draw(Context&)          = 0;
+#endif
 
 protected:
 
