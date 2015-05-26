@@ -330,7 +330,7 @@ const int  infEdge  = -200;         // dB
 const int  barPad   =    2;         // px
 const Rect gridPad(24, 16, 24, 16); // px
 
-const Size displaySize(653, 290);   // px
+const Size displaySize(653, 261);   // px
 
 // grid frequencies, Hz, (second value specifies if the grid line is labeled)
 // "decimal" grid:
@@ -422,13 +422,13 @@ struct Defaults
 
     Defaults()
     {
-        namespace p       = parameters;
-        value[p::version] = presetVersion;
+        namespace p        = parameters;
+        value[p::version]  = presetVersion;
         value[p::display_] = 0;
-        value[p::x]       = ~3333;
-        value[p::y]       = ~3333;
-        value[p::w]       = displaySize.w;
-        value[p::h]       = displaySize.h;
+        value[p::x]        = 0;
+        value[p::y]        = 0;
+        value[p::w]        = displaySize.w;
+        value[p::h]        = displaySize.h;
 
         Type v(value + SettingsIndex);
         v.defaults();
@@ -463,7 +463,7 @@ struct Pref
 const Pref prefs[PrefCount] =
 {
     keepColors,    1, "Keep current colors when loading presets",
-    smartDisplay,  1, "Use presets to manage display size",
+    smartDisplay,  0, "Use presets to manage display size",
 };
 
 // ............................................................................
