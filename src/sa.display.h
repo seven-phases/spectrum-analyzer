@@ -105,7 +105,7 @@ struct Display : ui::native::LayerBase, DrawData
         glEnableClientState(GL_VERTEX_ARRAY);
         // note: -1 for x/y because of the -.5 translate:
         glScissor(x - barPad - 1, context->size().h
-            - (y + h - 1), w + barPad * 2, h); // :(
+            - (y + h - 1), w + barPad * 2, h);
 
         // bars
 
@@ -113,11 +113,12 @@ struct Display : ui::native::LayerBase, DrawData
         const int n = data->nBands;
         glVertexPointer(2, GL_INT, 0, p);
 
-        w = barWidth;
+        w = max(barWidth, (barWidth + barPad + 1) >> 1);
+        int v = barWidth + barPad - w;
         for (int i = 0; i < n; i++)
         {
             p[i][0][0] = p[i][1][0] = x; x += w;
-            p[i][2][0] = p[i][3][0] = x; x += barPad;
+            p[i][2][0] = p[i][3][0] = x; x += v;
         }
 
         if (settings(peakEnable))
@@ -135,6 +136,7 @@ struct Display : ui::native::LayerBase, DrawData
         // curves
 
         int pp[MaxBands + 2][2];
+        w = barWidth;
         x = gridRect.x + barPad + 1 + w/2;
         for (int i = 0; i < n; i++)
         {

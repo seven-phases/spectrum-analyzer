@@ -11,7 +11,9 @@ extern "C" AEffect* VSTPluginMain(audioMasterCallback audioMaster)
         _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_LEAK_CHECK_DF);
     #endif
 
-    trace.setLevel(trace.Full);
+    #if DBG > 1
+        trace.setLevel(trace.Full);
+    #endif
     tf
 
 	if (audioMaster(0, audioMasterVersion, 0, 0, 0, 0))
