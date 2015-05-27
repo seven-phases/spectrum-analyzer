@@ -1,3 +1,4 @@
+*For binaries changelog see [releases](https://github.com/seven-phases/spectrum-analyzer/releases)*
 
 ## 1.06
 

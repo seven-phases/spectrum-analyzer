@@ -4,7 +4,9 @@
 
 See [plugin page](http://kvraudio.com/product/spectrum_analyzer_by_seven_phases) at [**KVR Audio**](http://www.kvraudio.com/).
 
-### Build Instructions
+Looking for release downloads? Find them [here](https://github.com/seven-phases/spectrum-analyzer/releases).
+
+## Build Instructions
 
 Required tools:
 
@@ -14,13 +16,13 @@ Required tools:
 Building:
 
 1. Install WDK and VST SDK.
-2. Specify their paths in `build/wdk71/paths.cmd` file (run `build-release.cmd` to create this file from you). For example:
+2. Specify their paths in `build/wdk71/paths.cmd` file (run `build-release.cmd` to create this file for you). For example:
 ```
 set WDKROOT=E:\WDK
 set VSTSDKROOT=C:\Foo\Steinberg\VST3SDK
 ```
 3. Run `build/wdk71/build-release.cmd` script.
-4. On a succefull build (run the script via `cmd` console to see errors and warnings) the compiled binaries will appear in the `release` directory (`x86` and `x64` respectively).
+4. On a successful build (run the script via `cmd` console to see errors and warnings) the compiled binaries will appear in the `release` directory (`x86` and `x64` respectively).
 
-### More info
+## More info
 Work in progress...
