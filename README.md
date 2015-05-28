@@ -2,7 +2,7 @@
 
 **Seven Phases Spectrum Analyzer** is a real-time spectrum analysis VST plugin. The idea was to create an old-fashioned tool reminiscent of classic hardware analyzers of the earlier centuries. Unlike most of other analyzers available these days, this plugin is not FFT-based but utilizes a filter-bank algorithms that mould its unique pros and cons.
 
-See [plugin page](http://kvraudio.com/product/spectrum_analyzer_by_seven_phases) at [**KVR Audio**](http://www.kvraudio.com/).
+See [plugin page](http://kvraudio.com/product/spectrum-analyzer-by-seven-phases#kvrphd) at [**KVR Audio**](http://www.kvraudio.com/).
 
 Looking for release downloads? Find them [here](https://github.com/seven-phases/spectrum-analyzer/releases).
 
