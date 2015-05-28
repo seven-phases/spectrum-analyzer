@@ -1,1 +1,2 @@
 !INCLUDE $(NTMAKEENV)\makefile.def
+ERATTA_FLAGS=
