@@ -53,10 +53,10 @@ struct PluginBase : AudioEffectX
 private:
 
     bool getEffectName(char* text)    {return !!copy(text, Plugin::name(), kVstMaxEffectNameLen);}
-	bool getVendorString(char* text)  {return !!copy(text, Plugin::vendor(), kVstMaxVendorStrLen);}
+    bool getVendorString(char* text)  {return !!copy(text, Plugin::vendor(), kVstMaxVendorStrLen);}
     bool getProductString(char* text) {return !!copy(text, Plugin::name(), kVstMaxProductStrLen);}
 
-	VstInt32 getVendorVersion()       {return Plugin::Version;}
+    VstInt32 getVendorVersion()       {return Plugin::Version;}
     VstPlugCategory getPlugCategory() {return VstPlugCategory(Plugin::Category);}
 
 public:

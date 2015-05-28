@@ -358,8 +358,7 @@ struct Display : ui::native::LayerBase, DrawData
     {
         resizer.poll(this->handle);
 
-        struct {Analyzer::Peak::Value
-            p[MaxBands], a[MaxBands];} p;
+        Analyzer::Peak::Out p;
         const double as = 1.
             / shared.analyzer->readPeaks(p);
 

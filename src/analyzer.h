@@ -161,27 +161,19 @@ struct Analyzer
         lock.unlock();
     }
 
-    template <typename Dst> noalias_ inline_ // this is one big FIXME!
+    
+    template <typename Dst> noalias_ inline_ 
     int readPeaks(Dst& dst) // returns count of processed samples (for avrg)
     {
-        // !: struct {float p[MaxBands], a[MaxBands];} dst;
-
         lock.lock();
 
-        float* p = dst.p;
-        float* a = dst.a;
-        _mm_storeu_ps(p, shuffle
-            <1, 2, 3, 0>(peak[0].p, peak[0].p));
-        _mm_storeu_ps(a, shuffle
-            <1, 2, 3, 0>(peak[0].a, peak[0].a));
-        p += 3;
-        a += 3;
-
+        Dst::T* p = &dst.p_;
+        Dst::T* a = &dst.a_;
         const int n = nBandsPadded();
-        for (int i = 1; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
-            _mm_storeu_ps(p, peak[i].p);
-            _mm_storeu_ps(a, peak[i].a);
+            _mm_store_ps(p, peak[i].p);
+            _mm_store_ps(a, peak[i].a);
             p += 4;
             a += 4;
         }
@@ -290,9 +282,11 @@ private:
         memset(peak, 0, sizeof(peak));
         memset(zlp,  0, sizeof(zlp));
 
-        /* size_t ptr = (size_t) (void*) &band[0].p[0];
-        trace("band data align: %i (%p)\n",
-            15 & ptr, ptr);*/
+        /* size_t p;
+        p = (size_t) (void*) &band[0].p[0];
+        trace.warn("band data align: %i (%p)\n", int(p & 15), p);
+        p = (size_t) (void*) &peak[0].a[0];
+        trace.warn("peak align: %i (%p)\n", int(p & 15), p); */
     }
 
 public:
@@ -306,6 +300,12 @@ public:
     typedef sp::ZeroLP         ZeroLP;
     typedef sp::TwoPoleLPSAx   Filter;
     typedef kali::atomic::Lock Lock;
+
+    enum
+    {
+        MaxBands  = 64,
+        FrameSize = 256
+    };
 
     struct Band
     {
@@ -322,15 +322,15 @@ public:
     struct Peak
     {
         typedef Band::T T;
-        typedef T::Type Value;
         T p;
         T a;
-    };
 
-    enum
-    {
-        MaxBands  = 64,
-        FrameSize = 256
+        struct Out 
+        {   // fixme, invent some descriptive names for p_ and a_ :)
+            typedef Band::T::Type T;
+            T p_, p[MaxBands - 1],
+              a_, a[MaxBands - 1];
+        } align_(16);
     };
 
 private:
