@@ -52,7 +52,8 @@ public:
     {
         // meet Schlemiel
         size_t n = strlen(data);
-        return copy(data + n, src, int(size - n));
+        copy(data + n, src, int(size - n));
+        return data;
     }
 
     template <int n>

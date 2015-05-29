@@ -30,7 +30,7 @@ struct PresetHandler :
     };
 
     virtual const int (&getPreset() const)[nParameters] = 0;
-    virtual void setPreset(const int (&)[nParameters])  = 0;
+    virtual void setPreset(int (&)[nParameters])  = 0;
 
     // following 5 funs are workarounds for certain weird hosts
     // (Audition for example) not supporting `n parameters = 0`.
@@ -51,19 +51,6 @@ private:
     typedef vst::PluginBase <Plugin>           Base;
     typedef PresetBank <nPresets, nParameters> Bank;
 
-    void tracy(const int* v, const char* prefix) const
-    {
-        for (int i = 0; i < (nParameters - 8); i += 4)
-            trace.full("%s: %04i %04i %04i %04i\n",
-                prefix, v[i+0], v[i+1], v[i+2], v[i+3]);
-
-        /* typedef kali::details::String <1024> S;
-        S s("%s: ", prefix);
-        for (int i = 6; i < (nParameters - 8); i++)
-            s.append(S("%i, ", v[i]));
-        trace.full((s.append(";\n");); */
-    }
-
     VstInt32 getProgram()
     {
         // trace.full("%s: %i\n", FUNCTION_, index);
@@ -74,8 +61,7 @@ private:
     {
         trace.full("%s(%i)\n", FUNCTION_, i);
         index = i;
-        tracy(value[index], FUNCTION_);
-        setPreset(value[index]);
+        setPreset(value[i]);
     }
 
     void setProgramName(char* text)
@@ -161,6 +147,16 @@ private:
 
         return 1;
     }
+
+    /* void tracy(const int* v, const char* prefix) const
+    {
+        typedef kali::details::String <1024> string;
+        string s("%s:", prefix);
+        for (int i = 0; i < nParameters; i++)
+            s.append(string("%s %4i,", 
+                (i & 3) ? "" : "\n ", v[i]));
+        trace.warn(s.append("\n"));
+    } */
 
     // ........................................................................
 

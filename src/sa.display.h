@@ -75,9 +75,6 @@ struct Display : ui::native::LayerBase, DrawData
         else
             p[n + 1][1] = p[n][1];
 
-        /*p[0][1]     = extrapolateEdge<0>(p[1][1], p[2][1]);
-        p[n + 1][1] = extrapolateEdge<1>(p[n][1], p[n - 1][1]);*/
-
         gl::color(settings(Color));
         glLineWidth(.667f * (.5f + settings(Width)));
         gl::drawCurve_<16>(p, n + 2, .5f);
@@ -359,7 +356,7 @@ struct Display : ui::native::LayerBase, DrawData
         resizer.poll(this->handle);
 
         Analyzer::Peak::Out p;
-        const double as = 1.
+        const double scale = 1.
             / shared.analyzer->readPeaks(p);
 
         using namespace config;
@@ -375,16 +372,16 @@ struct Display : ui::native::LayerBase, DrawData
             settings(holdDecay),
         };
 
-        const int ak = settings(avrgTime) / pollTime;
+        const int    size   = settings(avrgTime) / pollTime;
+        const double slope  = 10. / nBands * settings(avrgSlope);
+        const double outset = 6 - .5 * nBands * slope;
 
         for (int i = 0; i < nBands; i++)
         {
-            peak[i].tick
-                (.5 * sp::g2dB(p.p[i] + inf), mo);
-
-            double ax = p.a[i] * as;
-            avrg[i] = 3 + .5 * sp::g2dB
-                (avrf[i].tick(ax, inf, ak));
+            peak[i].tick(.5 * sp::g2dB(p.p[i] + inf), mo);
+            double a = p.a[i] * scale;
+            a = sp::g2dB(avrf[i].tick(a, inf, size));
+            avrg[i] = .5 * (outset + a + slope * i);
         }
 
         if (!freeze)
@@ -547,8 +544,6 @@ struct Display : ui::native::LayerBase, DrawData
         if (!key.get(PrefName()[smartDisplay],
             prefs[smartDisplay].default_))
         {
-            v[n::x] = key.get("x", ~3333);
-            v[n::y] = key.get("y", ~3333);
             v[n::w] = key.get("w", displaySize.w);
             v[n::h] = key.get("h", displaySize.h);
         }

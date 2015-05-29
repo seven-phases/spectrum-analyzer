@@ -7,6 +7,7 @@
 #define  PROCESS_DBL 1
 
 #include "preset-handler.h"
+#include "sa.legacy.h"
 #include "sa.display.h"
 #include "version.h"
 
@@ -93,12 +94,13 @@ struct Plugin :
 
     const int (&getPreset() const)[sa::config::ParameterCount] {return shared.parameter;}
 
-    void setPreset(const int (&value)[sa::config::ParameterCount])
+    void setPreset(int (&value)[sa::config::ParameterCount])
     {
         using namespace sa::config;
+        using sa::config::ParameterCount;
         namespace p = parameters;
 
-        if (value[p::version] != presetVersion)
+        if (!sa::legacy::convertPreset(value))
             return trace("%s: unsupported preset version %i\n",
                 FUNCTION_, value[p::version]);
 
@@ -121,7 +123,7 @@ struct Plugin :
             if (Settings(prefsKey).get(PrefName()
                 [smartDisplay], prefs[smartDisplay].default_))
             {
-                for (int i = p::display_; i <= p::h; i++)
+                for (int i = p::w; i <= p::h; i++)
                     shared.parameter[i] = value[i];
             }
         }

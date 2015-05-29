@@ -43,6 +43,8 @@ enum Index
     freqGridType,
     bandsPerOctave,
 
+    avrgSlope,
+
     peakBarColor,
     holdBarColor,
     avrgBarColor,
@@ -98,6 +100,8 @@ const Descriptor descriptor[] =
     {levelGrid,     2, 12, 1,  5,          "dB", "Grid"},
     {freqGridType,   0, 1, 1,  0, "Decade, Octave", "Freq. Grid"},
     {bandsPerOctave, 0, 2, 1,  2,     "3, 4, 6", "Bands/Octave"},
+
+    {avrgSlope,    -6, 12, 1,  0,      "dB/oct", "Slope"},
 
     #define _ 0x80000000, 0x7FFFFFFF, 0x202020,
     {peakBarColor,    _ 0xCC2080F0, "argb", "Peak"},
@@ -156,6 +160,7 @@ const Depended depended[] =
     /* levelGrid */      _ (0),
     /* freqGridType */   _ (0),
     /* bandsPerOctave */ _ (0),
+    /* avrgSlope */      _ (0, 1, avrgEnable),
     #undef _
 };
 
@@ -234,9 +239,13 @@ struct WidgetAdapter
     void value(int i, const char* v_)
     {
         char* end;
-        int v = (!strcmp(descriptor[i].unit, "s"))
-            ? int(strtod(v_, &end) * 1000 + .5)
-            : v = strtol(v_, &end, 10);
+        int v;
+        if (i == avrgSlope)
+            v = int(strtod(v_, &end) * 2);
+        else
+            v = (!strcmp(descriptor[i].unit, "s"))
+                ? int(strtod(v_, &end) * 1000 + .5)
+                : strtol(v_, &end, 10);
         if (end != v_)
             value_(i, v);
     }
@@ -279,6 +288,9 @@ private:
     {
         using kali::string;
         Desc d = descriptor[i];
+
+        if (i == avrgSlope)
+            return string("%0.1f", .5 * v);
 
         if (!strcmp(d.unit, "s"))
             return string("%0.1f", .001 * v);
@@ -323,7 +335,7 @@ const char* const prefsKey   = KEY;
 const char* const colorsKey  = KEY"\\Colours";
 #undef KEY
 
-const int  presetVersion = 1;
+const int  presetVersion = 2;
 
 const int  pollTime =   48;         // ms
 const int  infEdge  = -200;         // dB
@@ -371,8 +383,9 @@ namespace parameters
     enum Parameters
     {
         version,
-        display_, x, y, // <- unused since 1.05
         w, h,
+        unused1,
+        unused2,
 
         Count
     };
@@ -394,13 +407,13 @@ struct Preset
 
 const Preset preset[] =
 {
-    "Ancient",                 0, 1, 12, 0, 6000, 0, 4, 1, 0, 3000,  3, 0, 4,  0, 42, 10, 1, 0,
-    "Medieval",                0, 1, 18, 1, 2000, 0, 4, 1, 0, 6000,  2, 0, 3, -3, 48,  6, 1, 1,
-    "Modern 1",                2, 1, 15, 1, 3000, 1, 3, 1, 0, 2000,  3, 1, 2, -2, 52,  5, 0, 2,
-    "Modern 2",                2, 1, 20, 1,  500, 1, 3, 1, 0,    0,  2, 1, 2, -2, 52,  5, 0, 2,
-    ".2 Short RMS, Slow Peak", 2, 0, 18, 1,  500, 1, 2, 1, 0,    0,  2, 1, 2, -3, 48,  6, 1, 2,
-    ".2 Long RMS, Fast Peak",  2, 0, 15, 1, 6000, 1, 2, 1, 0,    0, 15, 1, 2, -3, 48,  6, 1, 2,
-    "Broken Pixels",           3, 0, 12, 1,  500, 0, 4, 1, 0, 4000, 48, 0, 4, -3, 54, 12, 1, 2,
+    "Ancient",                 0, 1, 12, 0, 6000, 0, 4, 1, 0, 3000,  3, 0, 4,  0, 42, 10, 1, 0, 0,
+    "Medieval",                0, 1, 18, 1, 2000, 0, 4, 1, 0, 6000,  2, 0, 3, -3, 48,  6, 1, 1, 0,
+    "Modern 1",                2, 1, 15, 1, 3000, 1, 3, 1, 0, 2000,  3, 1, 2, -2, 52,  5, 0, 2, 0,
+    "Modern 2",                2, 1, 20, 1,  500, 1, 3, 1, 0,    0,  2, 1, 2, -2, 52,  5, 0, 2, 0,
+    ".2 Short RMS, Slow Peak", 2, 0, 18, 1,  500, 1, 2, 1, 0,    0,  2, 1, 2, -3, 48,  6, 1, 2, 0,
+    ".2 Long RMS, Fast Peak",  2, 0, 15, 1, 6000, 1, 2, 1, 0,    0, 15, 1, 2, -3, 48,  6, 1, 2, 0,
+    "Broken Pixels",           3, 0, 12, 1,  500, 0, 4, 1, 0, 4000, 48, 0, 4, -3, 54, 12, 1, 2, 0,
 };
 
 struct Defaults
@@ -420,15 +433,16 @@ struct Defaults
         return index ? ". . ." : "Default";
     }
 
+    const int* data() const {return value;}
+
     Defaults()
     {
         namespace p        = parameters;
         value[p::version]  = presetVersion;
-        value[p::display_] = 0;
-        value[p::x]        = 0;
-        value[p::y]        = 0;
         value[p::w]        = displaySize.w;
         value[p::h]        = displaySize.h;
+        value[p::unused1]  = 0;
+        value[p::unused2]  = 0;
 
         Type v(value + SettingsIndex);
         v.defaults();

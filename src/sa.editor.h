@@ -127,7 +127,7 @@ struct Editor : LayerBase
 
         widget::Ctor<TextRight>(this, Rect(x + s.w
             - c.x(75+7), y + 3, c.x(75), c.y(15)),
-            string("v%s", VERSION_STR));
+            string("v%s%s", VERSION_STR, DBG ? "-dbg" : ""));
 
         x += c.x(7) + s.w;
         y += c.y(6) + s.h;
@@ -215,7 +215,8 @@ struct Editor : LayerBase
             levelRange,     makeEdit,
             levelGrid,      makeEdit,
             freqGridType,   makeCombo,
-            bandsPerOctave, makeCombo
+            bandsPerOctave, makeCombo,
+            avrgSlope,      makeEdit
         };
 
         Ctor ctor(addLayer("Settings"));
