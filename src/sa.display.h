@@ -6,7 +6,7 @@
 #include "kali/graphics.opengl.h"
 #include "analyzer.h"
 #include "sa.editor.h"
-#include "sa.resizer.h"
+#include "sa.widgets.h"
 
 // ............................................................................
 
@@ -39,7 +39,8 @@ struct DrawData
 
 // ............................................................................
 
-struct Display : ui::native::LayerBase, DrawData
+struct Display : DrawData,
+    TrackMousePosition <ui::native::LayerBase>
 {
     template <bool H, settings::Index Color, typename T>
     void drawBars(int p[][4][2], int h, const T& level) const
@@ -154,40 +155,13 @@ struct Display : ui::native::LayerBase, DrawData
                 sp::Iter<const Meter, double, &Meter::hold>(data->peak));
 
         glDisable(GL_LINE_SMOOTH);
+        glDisable(GL_SCISSOR_TEST);
 
-        // mouse position (TODO: clean up!)
-        if (gridRect.contains(mousePos))
-        {
-            gl::color(settings(gridLabelColor));
-            glBegin(GL_QUADS);
-            const int pd = 2;
-            gl::rectVertices(gridRect.right() - 85 - pd,
-                -barPad + pd, gridRect.right() - pd, 15 + pd);
-            glEnd();
-
-            int ca = 0xFF000000 | settings(bkgTopColor);
-            int cb = 0xFF000000 | settings(bkgBottomColor);
-            int cc = ((ca & 0xFEFEFEFEu) >> 1)
-                   + ((cb & 0xFEFEFEFEu) >> 1);
-            gl::color(cc);
-
-            int q = mousePos.x - (gridRect.x + barPad + barWidth / 2);
-            int qw = gridRect.w - (barPad + barWidth / 2) * 2 - 2;
-            double freq = data->freqMin * exp(log(data->freqMax/data->freqMin)
-                * q / qw);
-            double level = settings(levelCeil)
-                - (mousePos.y - gridRect.y - 1) / gridLevelScale;
-            if (level > 0)
-                level += 1 / gridLevelScale;
-            gl::drawText(string("%iHz, %.01fdB",
-                int(freq + .51), .5 * int(2. * level)),
-                font, gridRect.right() + 4 - pd, 9 + pd, -5);
-        }
+        drawPointerInfo();
 
         // end
 
         glDisableClientState(GL_VERTEX_ARRAY);
-        glDisable(GL_SCISSOR_TEST);
         glPopMatrix();
     }
 
@@ -326,6 +300,42 @@ struct Display : ui::native::LayerBase, DrawData
         }
     }
 
+    void drawPointerInfo() const  // TODO: clean up!
+    {
+        
+        if (!gridRect.contains(mousePos))
+            return;
+
+        using namespace config;
+
+        const Rect& r = gridRect; 
+        const int   x = r.right(); 
+        const int bar = barPad + barWidth / 2;
+
+        gl::color(settings(gridLabelColor));
+        glBegin(GL_QUADS);
+        gl::rectVertices(x - 85, -1, x - barPad, 18 - barPad);
+        glEnd();
+
+        int ca = 0xFF000000 | settings(bkgTopColor);
+        int cb = 0xFF000000 | settings(bkgBottomColor);
+        int cc = ((ca & 0xFEFEFEFEu) >> 1)
+               + ((cb & 0xFEFEFEFEu) >> 1);
+        gl::color(cc);
+
+        int mx = mousePos.x - r.x + bar;
+        int gx = r.w - bar * 2 - 2;
+        double freq = freqMin * exp
+            (log(freqMax / freqMin) * mx / gx);
+        double level = settings(levelCeil)
+            - (mousePos.y - r.y - 1) / gridLevelScale;
+        if (level > 0)
+            level += 1 / gridLevelScale;
+        gl::drawText(string("%iHz, %.01fdB",
+            int(freq + .51), .5 * int(2. * level)),
+            font, x + 3, 11, -5);
+    }
+
     static string freqString(double value)
     {
         if (value < 1000)
@@ -453,25 +463,6 @@ struct Display : ui::native::LayerBase, DrawData
         if (!e)
             openEditor();
         return true;
-    }
-
-    bool mouseMove(int x, int y)
-    {
-        if (!mousePos.x && !mousePos.y)
-            enableMouseLeave();
-        mousePos = Point(x, y);
-        // ::SetCursor(::LoadCursor(0, IDC_SIZENS));
-        return true;
-    }
-
-    void enableMouseLeave() const
-    {
-        TRACKMOUSEEVENT tme;
-        tme.cbSize      = sizeof(tme);
-        tme.dwFlags     = TME_LEAVE;
-        tme.hwndTrack   = this->handle;
-        tme.dwHoverTime = HOVER_DEFAULT;
-        ::TrackMouseEvent(&tme);
     }
 
     bool vstKeyDown(int key)
@@ -606,7 +597,6 @@ private:
     DrawData        frozen;
     gl::Context*    context;
     gl::Font*       font;
-    Point           mousePos;
     Rect            gridRect;
     double          gridLevelScale;
     int             barWidth;

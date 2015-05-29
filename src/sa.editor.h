@@ -131,7 +131,7 @@ struct Editor : LayerBase
 
         x += c.x(7) + s.w;
         y += c.y(6) + s.h;
-        y += c.y(8) + c.y(23);
+        // y += c.y(8) + c.y(23);
         this->size(x, y);
         this->title(NAME" Settings");
 
@@ -452,7 +452,7 @@ struct Editor : LayerBase
     {
         LayerBase* layer = addLayer("Preferences");
 
-        Rect r(c.x(11) , c.x(15), c.x(300), c.y(16));
+        Rect r(c.x(11) , c.y(15), c.x(300), c.y(16));
         for (int i = 0; i < PrefCount; i++)
         {
             using namespace config;
