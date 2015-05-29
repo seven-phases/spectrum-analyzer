@@ -106,12 +106,14 @@ struct Editor : AEffEditor
         }
     }
 
-    /*bool onKeyDown(VstKeyCode& key)
+    bool onKeyDown(VstKeyCode& key)
     {
-        trace.full("%s: %c, %i, %i\n", FUNCTION_,
-            key.character, key.virt, key.modifier);
-        return false;
-    }*/
+        /* trace.full("%s: %c, %i, %i\n", FUNCTION_,
+            key.character, key.virt, key.modifier); */
+        int code = (key.character & 0xff - 0x20)
+                 + (key.modifier << 8);
+        return window->vstKeyDown(code);
+    }
 
     bool getRect(ERect** r)
     {
@@ -148,6 +150,18 @@ private:
 
     Editor(const Editor&);
     Editor& operator = (const Editor&);
+};
+
+// ............................................................................
+
+enum KeyModifier
+{
+    #define _(M) MODIFIER_##M << 8
+    Alt   = _(ALTERNATE),
+    Cmd   = _(COMMAND),
+    Ctrl  = _(CONTROL),
+    Shift = _(SHIFT),
+    #undef  _
 };
 
 // ............................................................................

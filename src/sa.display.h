@@ -474,27 +474,17 @@ struct Display : ui::native::LayerBase, DrawData
         ::TrackMouseEvent(&tme);
     }
 
-    bool keyDown(int key, int flags)
+    bool vstKeyDown(int key)
     {
-        enum
-        {
-            Ctrl   = 0x0100,
-            Shift  = 0x0200,
-            Repeat = 0x1000
-        };
+        using namespace vst;
 
-        int code = key
-            + Ctrl   * (0 > ::GetKeyState(VK_CONTROL))
-            + Shift  * (0 > ::GetKeyState(VK_SHIFT))
-            + Repeat * !!(flags & KF_REPEAT);
-
-        switch (code)
+        switch (key)
         {
-        case 'R':
+        case      'R':
         case Ctrl+'R':
             return mouseDoubleClick();
 
-        case 'F':
+        case      'F':
         case Ctrl+'F':
             return toggleFreeze();
         }
