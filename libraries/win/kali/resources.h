@@ -3,7 +3,6 @@
 #define KALI_RESOURCES_INCLUDED
 
 #include <windows.h>
-#include <gdiplus.h>
 #include "kali/dbgutils.h"
 
 // ............................................................................
@@ -94,7 +93,8 @@ private:
 };
 
 // ............................................................................
-// OK, for now let it be GDI+ decoder
+
+#ifdef GDIPVER
 
 struct ImageBits
 {
@@ -176,6 +176,8 @@ private:
     ImageBits(const ImageBits& f);
     ImageBits& operator = (const ImageBits&);
 };
+
+#endif
 
 // ............................................................................
 

@@ -33,7 +33,6 @@
 #include <math.h>
 #include <windows.h>
 #include <commctrl.h>
-#include <gdiplus.h>
 #include <gl/gl.h>
 
 #undef small
