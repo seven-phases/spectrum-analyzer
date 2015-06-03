@@ -88,12 +88,7 @@ struct Context
         // glShadeModel(GL_SMOOTH); // <- default
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        // glEnable(GL_POLYGON_SMOOTH);
-        // glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-
-        // glEnable(GL_LINE_SMOOTH);
-        // glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     }
 
     // copy pixels from 'src' (usually AUX) to current draw buffer
@@ -326,6 +321,26 @@ inline void drawFrame(const Rect& r)
 
 // ............................................................................
 
+namespace concavePolygonStencilMask {
+
+    void begin() {
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_STENCIL_TEST);
+        glStencilMask(1);
+        glStencilFunc(GL_ALWAYS, 0, 1);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+    void end() {
+        glStencilFunc(GL_EQUAL, 1, 1);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+}
+
+// ............................................................................
+
 template <typename T> noalias_ inline_
 void cardinalSpline_(T dst[2], const int src[][2], double t, double s_)
 {
@@ -351,32 +366,29 @@ void cardinalSpline_(T dst[2], const int src[][2], double t, double s_)
     }
 }
 
-#ifndef GL_BRUTE_DRAW_CURVE_
-#define GL_BRUTE_DRAW_CURVE_ 1
+#ifndef GL_DRAW_CURVE_ALLOCA_
+#define GL_DRAW_CURVE_ALLOCA_ 1
 #endif
 
 template <int segments> noalias_
-void drawCurve_(const int points[][2], int count, float tension)
+void drawCurve_(const int points[][2], int count, const float fillRect[4][2], float width, float tension = .5f)
 {
-    #if GL_BRUTE_DRAW_CURVE_
+    #if GL_DRAW_CURVE_ALLOCA_
     #define malloc alloca
     #define free(p)
     #endif
 
-    // "cl /analyze" may complain here about dereferencing
-    // null pointers, but it's all correct actually
-
-    int n = count + 2;
-    int (*src)[2] = (int (*)[2]) malloc(n * 2 * sizeof(int));
-    memcpy(src + 1, points, (n - 2) * 2 * sizeof(int));
+    int n = count;
+    int (*src)[2] = (int (*)[2]) malloc((n + 2) * 2 * sizeof(int));
+    memcpy(src + 1, points, n * 2 * sizeof(int));
     src[0][0]     = src[1][0];
     src[0][1]     = src[1][1];
-    src[n - 1][0] = src[n - 2][0];
-    src[n - 1][1] = src[n - 2][1];
+    src[n + 1][0] = src[n][0];
+    src[n + 1][1] = src[n][1];
 
-    n -= 3;
+    n -= 1;
     float (*p)[segments][2] = (float (*)[segments][2])
-        malloc((n * segments + 1) * 2 * sizeof(float));
+        malloc((n * segments + 1 + 4) * 2 * sizeof(float));
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < segments; j++)
@@ -385,21 +397,41 @@ void drawCurve_(const int points[][2], int count, float tension)
 
     p[n][0][0] = float(src[n + 1][0]);
     p[n][0][1] = float(src[n + 1][1]);
+    if (fillRect)
+        memcpy(p[n][1], fillRect, 4 * 2 * sizeof(float));
 
+    n = n * segments + 1;
     glVertexPointer(2, GL_FLOAT, 0, p);
-    glDrawArrays(GL_LINE_STRIP, 0, n * segments + 1);
+
+    if (fillRect) {
+        // mask
+        namespace mask = concavePolygonStencilMask;
+        mask::begin();
+        glTranslatef(0, -.5f * width, 0);
+        glDrawArrays(GL_POLYGON, 0, n + 2);
+        glTranslatef(0, +.5f * width, 0);
+        mask::end();
+        
+        // fill
+        glDrawArrays(GL_QUADS, n, 4);
+        glDisable(GL_STENCIL_TEST);
+    }
+
+    // curve
+    glLineWidth(width);
+    glDrawArrays(GL_LINE_STRIP, 0, n);
 
     free(p);
     free(src);
 
-    #if GL_BRUTE_DRAW_CURVE_
+    #if GL_DRAW_CURVE_ALLOCA_
     #undef malloc
     #undef free
     #endif
 }
 
 // ............................................................................
-// low level utility
+// utility
 
 inline void error(const char* prefix)
 {

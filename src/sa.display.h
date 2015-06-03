@@ -46,8 +46,8 @@ struct Display : DrawData,
     void drawBars(int p[][4][2], int h, const T& level) const
     {
         using namespace config;
-        const int n = data->nBands;
 
+        const int n = data->nBands;
         for (int i = 0; i < n; i++)
         {
             int y = int(gridLevelScale
@@ -55,17 +55,17 @@ struct Display : DrawData,
             p[i][1][1] = p[i][2][1] = y;
             p[i][0][1] = p[i][3][1] = y * H + h;
         }
-
         gl::color(settings(Color));
+        glVertexPointer(2, GL_INT, 0, p);
         glDrawArrays(GL_QUADS, 0, n * 4);
     }
 
     template <settings::Index Color, settings::Index Width, typename T>
-    void drawCurve(int p[][2], const T& level) const
+    void drawCurve(int p[][2], int n, const T& level, bool fill) const
     {
         using namespace config;
-        const int n = data->nBands;
 
+        n -= 2;
         for (int i = 0; i < n; i++)
             p[i + 1][1] = int(gridLevelScale
                 * (settings(levelCeil) - level[i]));
@@ -76,14 +76,31 @@ struct Display : DrawData,
         else
             p[n + 1][1] = p[n][1];
 
-        gl::color(settings(Color));
-        glLineWidth(.667f * (.5f + settings(Width)));
-        gl::drawCurve_<16>(p, n + 2, .5f);
+        unsigned color = settings(Color);
+        const float (*fillRect)[2] = 0;
+        
+        Rect r = gridRect;
+        const float pp[4][2] = {
+            float(r.x + r.w), float(-1 + r.h),
+            float(r.x),       float(-1 + r.h),
+            float(r.x),       float(-1),
+            float(r.x + r.w), float(-1),
+        };
+
+        if (fill) {
+            fillRect = pp;
+            color = (color & 0xffffff)
+                  + (color >> 1u & 0xff000000);
+        }
+
+        gl::color(color);
+        float width = .667f * (.5f + settings(Width));
+        gl::drawCurve_<16>(p, n + 2, fillRect, width);
     }
 
     // ........................................................................
 
-    void drawPeaks() const
+    void drawForeground() const
     {
         using namespace config;
 
@@ -92,24 +109,21 @@ struct Display : DrawData,
         int h = gridRect.h - barPad * 2 - 1;
         int w = gridRect.w - barPad * 2 - 1;
 
-        // begin
-
-        glPushMatrix();
-        glTranslated(0 - .5, y - .5, 0);
-
-        // set clipping
+        // clipping
 
         glEnable(GL_SCISSOR_TEST);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        // note: -1 for x/y because of the -.5 translate:
-        glScissor(x - barPad - 1, context->size().h
-            - (y + h - 1), w + barPad * 2, h);
+        glScissor(x - 1, y, w, h);
 
-        // bars
+        // begin
+        glPushMatrix();
+        glTranslatef(0 - .5f, y - .5f, 0);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnable(GL_LINE_SMOOTH);
+
+        // bar x points
 
         int p[MaxBands][4][2];
         const int n = data->nBands;
-        glVertexPointer(2, GL_INT, 0, p);
 
         w = max(barWidth, (barWidth + barPad + 1) >> 1);
         int v = barWidth + barPad - w;
@@ -119,49 +133,51 @@ struct Display : DrawData,
             p[i][2][0] = p[i][3][0] = x; x += v;
         }
 
-        if (settings(peakEnable))
-            drawBars<0, peakBarColor>(p, h,
-                sp::Iter<const Meter, double, &Meter::peak>(data->peak));
-
-        if (settings(avrgEnable)  && !settings(avrgBarType))
-            drawBars<1, avrgBarColor>(p,
-                settings(avrgBarSize), data->avrg);
-
-        if (settings(holdEnable) && !settings(holdBarType))
-            drawBars<1, holdBarColor>(p, settings(holdBarSize),
-                sp::Iter<const Meter, double, &Meter::hold>(data->peak));
-
-        // curves
+        // curve x points
 
         int pp[MaxBands + 2][2];
         w = barWidth;
-        x = gridRect.x + barPad + 1 + w/2;
+        x = gridRect.x + barPad + 1 + w / 2;
         for (int i = 0; i < n; i++)
         {
             pp[i + 1][0] = x;
             x += w + barPad;
         }
-        pp[0][0] = pp[1][0] - (w + barPad);
+        pp[0][0]     = pp[1][0] - (w + barPad);
         pp[n + 1][0] = pp[n][0] + (w + barPad);
 
-        glEnable(GL_LINE_SMOOTH);
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        // render
 
-        if (settings(avrgEnable) && settings(avrgBarType))
-            drawCurve<avrgBarColor, avrgBarSize>(pp, data->avrg);
+        const sp::Iter<const Meter, double, &Meter::peak> peakIter(data->peak);
+        const sp::Iter<const Meter, double, &Meter::hold> holdIter(data->peak);
 
-        if (settings(holdEnable) && settings(holdBarType))
-            drawCurve<holdBarColor, holdBarSize>(pp,
-                sp::Iter<const Meter, double, &Meter::hold>(data->peak));
+        const int holdType = settings(holdBarType);
+        const int avrgType = settings(avrgBarType);
 
-        glDisable(GL_LINE_SMOOTH);
-        glDisable(GL_SCISSOR_TEST);
+        // better to draw peak on top of hold if the latter is curve-fill
+        if ((holdType != CurveFill) && settings(peakEnable))
+            drawBars<0, peakBarColor>(p, h, peakIter);
+
+        if (settings(holdEnable)) holdType
+            ? drawCurve<holdBarColor, holdBarSize>
+                (pp, n + 2, holdIter, holdType == CurveFill)
+            : drawBars<1, holdBarColor>(p, settings(holdBarSize), holdIter);
+
+        if ((holdType == CurveFill) && settings(peakEnable))
+            drawBars<0, peakBarColor>(p, h, peakIter);
+        
+        if (settings(avrgEnable)) avrgType
+            ? drawCurve<avrgBarColor, avrgBarSize>
+                (pp, n + 2, data->avrg, avrgType == CurveFill)
+            : drawBars<1, avrgBarColor>(p, settings(avrgBarSize), data->avrg);
 
         drawPointerInfo();
 
         // end
 
+        glDisable(GL_LINE_SMOOTH);
         glDisableClientState(GL_VERTEX_ARRAY);
+        glDisable(GL_SCISSOR_TEST);
         glPopMatrix();
     }
 
@@ -186,7 +202,6 @@ struct Display : DrawData,
         Rect& r  = gridRect;
 
         // background itself
-        // (snippet: diagonal gradient fill)
         int ca = 0xFF000000 | settings(bkgTopColor);
         int cb = 0xFF000000 | settings(bkgBottomColor);
         int cc = ((ca & 0xFEFEFEFEu) >> 1)
@@ -216,7 +231,7 @@ struct Display : DrawData,
             * 2 - 2) / double(settings(levelRange));
 
         // grid border
-        glTranslated(r.x - .5, r.y - .5, 0);
+        glTranslatef(r.x - .5f, r.y - .5f, 0);
         glLineWidth(1);
         gl::color(settings(gridBorderColor));
         glBegin(GL_LINE_LOOP);
@@ -225,9 +240,6 @@ struct Display : DrawData,
             glVertex2i(r.w, 0);
             glVertex2i(r.w, r.h);
         glEnd();
-
-        // glEnable(GL_LINE_STIPPLE);
-        // glLineStipple(1, 0x1111);
 
         // vertical grid lines & labels
         const double fRatio1 = 1. / data->freqMin;
@@ -286,8 +298,6 @@ struct Display : DrawData,
             level -= grid;
         }
 
-        // glDisable(GL_LINE_STIPPLE);
-
         // end
         glPopMatrix();
 
@@ -302,7 +312,6 @@ struct Display : DrawData,
 
     void drawPointerInfo() const  // TODO: clean up!
     {
-        
         if (!gridRect.contains(mousePos))
             return;
 
@@ -352,9 +361,9 @@ struct Display : DrawData,
         {
             context->begin();
             drawBackground(0 /*bkgCacheEnable*/);
-            gl::error(" bkg:");
-            drawPeaks();
-            gl::error(" peaks:");
+            gl::error(" back:");
+            drawForeground();
+            gl::error(" fore:");
             context->end();
         }
 

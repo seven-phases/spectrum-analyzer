@@ -4,13 +4,13 @@
 
 # OS and tools
 thumbs.db
+*.log
+*.wrn
 
 # project specific
 paths.cmd
 obj/
-*.dll
+release/*/
 *.zip
 *.tmp
-*.log
-*.wrn
 *.asm

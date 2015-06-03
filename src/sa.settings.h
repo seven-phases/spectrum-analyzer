@@ -85,14 +85,14 @@ const Descriptor descriptor[] =
 
     {avrgEnable,    0,  1, 1,  1,        "bool", "On"},
     {avrgTime,    100, 20000, 100, 3000,    "s", "Time"},
-    {avrgBarType,   0,  1, 1,  1, "Bars, Curve", "Show As"},
+    {avrgBarType,   0,  2, 1,  1, "Bars, Curve, Curve Fill", "Show As"},
     {avrgBarSize,   1,  4, 1,  3,          "px", "Size"},
 
     {holdEnable,    0,  1, 1,  1,        "bool", "On"},
     {holdInfinite,  0,  1, 1,  0,        "bool", "Infinite"},
     {holdTime,      0, 20000, 100, 2000,    "s", "Time"},
     {holdDecay,     1, 60, 1,  3,        "dB/s", "Decay"},
-    {holdBarType,   0,  1, 1,  1, "Bars, Curve", "Show As"},
+    {holdBarType,   0,  2, 1,  1, "Bars, Curve, Curve Fill", "Show As"},
     {holdBarSize,   1,  4, 1,  2,          "px", "Size"},
 
     {levelCeil,   -80, 20, 1,  3,          "dB", "Ceiling"},
@@ -375,6 +375,8 @@ const FreqGrid freqGrid[] =
    sizeof(freqGridDec)/sizeof(*freqGridDec), freqGridDec,
    sizeof(freqGridLin)/sizeof(*freqGridLin), freqGridLin
 };
+
+enum BarType {Bar, Curve, CurveFill};
 
 // ............................................................................
 
