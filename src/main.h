@@ -15,9 +15,9 @@
 
 struct Plugin :
     sp::AlignedNew <16>,
-    PresetHandler <Plugin, 8, sa::config::ParameterCount>
+    PresetHandler <Plugin, 9, sa::config::ParameterCount>
 {
-    typedef PresetHandler <Plugin, 8, sa::config::ParameterCount> Base;
+    typedef PresetHandler <Plugin, 9, sa::config::ParameterCount> Base;
 
     void suspend()
     {

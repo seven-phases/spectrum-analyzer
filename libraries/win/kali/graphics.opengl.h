@@ -370,7 +370,7 @@ void cardinalSpline_(T dst[2], const U src[][2], U t, U s_)
 #define GL_DRAW_CURVE_ALLOCA_ 1
 #endif
 
-template <int segments> noalias_ 
+template <int segments> noalias_
 void drawCurve_(const float points[][2], int count, const float fillRect[4][2], float width, float tension = .5f)
 {
     #if GL_DRAW_CURVE_ALLOCA_
@@ -380,7 +380,7 @@ void drawCurve_(const float points[][2], int count, const float fillRect[4][2], 
 
     int n = count;
     const int pointSize = 2 * sizeof(float);
-    float  (*src)[2] = (float (*)[2]) malloc((n + 2) * pointSize);
+    float (*src)[2] = (float (*)[2]) malloc((n + 2) * pointSize);
     memcpy(src + 1, points, n * pointSize);
     src[0][0]     = src[1][0];
     src[0][1]     = src[1][1];
