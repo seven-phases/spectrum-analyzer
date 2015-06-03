@@ -385,8 +385,7 @@ struct Display : DrawData,
             avrg[i] = .5 * (outset + a + slope * i);
         }
 
-        if (!freeze)
-            draw();
+        draw();
     }
 
     void settingsChanged()
