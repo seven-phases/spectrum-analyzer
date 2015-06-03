@@ -2,7 +2,6 @@
 #ifndef ANALYZER_INCLUDED
 #define ANALYZER_INCLUDED
 
-#include <memory.h>
 #include "kali/dbgutils.h"
 #include "kali/atomic.h"
 #include "sp/sp.h"

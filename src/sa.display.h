@@ -192,20 +192,9 @@ struct Display : DrawData,
         Rect& r  = gridRect;
 
         // background itself
-        int ca = 0xFF000000 | settings(bkgTopColor);
-        int cb = 0xFF000000 | settings(bkgBottomColor);
-        int cc = ((ca & 0xFEFEFEFEu) >> 1)
-               + ((cb & 0xFEFEFEFEu) >> 1);
-        glBegin(GL_QUADS);
-            gl::color(cc);
-            glVertex2i(0, r.h);
-            gl::color(ca);
-            glVertex2i(0, 0);
-            gl::color(cc);
-            glVertex2i(r.w, 0);
-            gl::color(cb);
-            glVertex2i(r.w, r.h);
-        glEnd();
+        gl::drawRectDiagonalGradient(Rect(0, 0, r.w, r.h),
+            0xFF000000 | settings(bkgTopColor),
+            0xFF000000 | settings(bkgBottomColor));
 
         // calculate 'the best fit' grid rectangle & peak bar width
         int width = r.w - gridPad.x - gridPad.w;
@@ -224,12 +213,7 @@ struct Display : DrawData,
         glTranslatef(r.x - .5f, r.y - .5f, 0);
         glLineWidth(1);
         gl::color(settings(gridBorderColor));
-        glBegin(GL_LINE_LOOP);
-            glVertex2i(0, r.h);
-            glVertex2i(0, 0);
-            glVertex2i(r.w, 0);
-            glVertex2i(r.w, r.h);
-        glEnd();
+        gl::drawRectFrame(Rect(0, 0, r.w, r.h));
 
         // vertical grid lines & labels
         const double fRatio1 = 1. / data->freqMin;
@@ -417,7 +401,8 @@ struct Display : DrawData,
         freeze = !freeze;
         if (freeze)
         {
-            frozen = *this; // copy current data to frozen
+            // copy current data to frozen
+            frozen = *this; 
             data = &frozen;
         }
         else

@@ -297,7 +297,15 @@ inline void drawRect(const Rect& r)
     glEnd();
 }
 
-inline void drawGradientRect(const Rect& r, const int (&color)[4])
+inline void drawRectFrame(const Rect& r)
+{
+    glBegin(GL_LINE_LOOP);
+        gl::rectVertices
+            (r.x, r.y, r.x + r.w, r.y + r.h);
+    glEnd();
+}
+
+inline void drawRectGradient(const Rect& r, const int (&color)[4])
 {
     glBegin(GL_QUADS);
         gl::color(color[0]);
@@ -311,12 +319,11 @@ inline void drawGradientRect(const Rect& r, const int (&color)[4])
     glEnd();
 }
 
-inline void drawFrame(const Rect& r)
-{
-    glBegin(GL_LINE_LOOP);
-        gl::rectVertices
-            (r.x, r.y, r.x + r.w, r.y + r.h);
-    glEnd();
+inline void drawRectDiagonalGradient(const Rect& r, int color1, int color2) {
+    int c3 = ((color1 & 0xFEFEFEFEu) >> 1)
+           + ((color2 & 0xFEFEFEFEu) >> 1);
+    int cc[4] = {color1, c3, color2, c3}; 
+    drawRectGradient(r, cc);
 }
 
 // ............................................................................
