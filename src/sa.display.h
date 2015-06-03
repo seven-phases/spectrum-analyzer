@@ -179,16 +179,8 @@ struct Display : DrawData,
         glPopMatrix();
     }
 
-    void drawBackground(bool cache)
+    void drawBackground()
     {
-        // copy background if cached
-        if (cache)
-        {
-            if (bkgCached)
-                return context->copyBuffer(GL_AUX0);
-            glDrawBuffer(GL_AUX0);
-        }
-
         // begin
         glClearColor(0, 0, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -298,14 +290,6 @@ struct Display : DrawData,
 
         // end
         glPopMatrix();
-
-        // save cache
-        if (cache)
-        {
-            glDrawBuffer(GL_BACK);
-            context->copyBuffer(GL_AUX0);
-            bkgCached = true;
-        }
     }
 
     void drawPointerInfo() const  // TODO: clean up!
@@ -358,7 +342,7 @@ struct Display : DrawData,
         if (context && !IsIconic(handle))
         {
             context->begin();
-            drawBackground(0 /*bkgCacheEnable*/);
+            drawBackground();
             gl::error(" back:");
             drawForeground();
             gl::error(" fore:");
@@ -417,7 +401,6 @@ struct Display : DrawData,
             reset();
         }
 
-        bkgCached = false;
         ::InvalidateRect(handle, 0, 0);
     }
 
@@ -433,17 +416,13 @@ struct Display : DrawData,
     bool toggleFreeze()
     {
         freeze = !freeze;
-
         if (freeze)
         {
-            frozen = *this;
+            frozen = *this; // copy current data to frozen
             data = &frozen;
         }
         else
-        {
             data = this;
-            bkgCached = false;
-        }
 
         return true;
     }
@@ -551,9 +530,6 @@ struct Display : DrawData,
         timer.callback.to(this, &Display::poll);
         timer.start(this, config::pollTime);
 
-        bkgCacheEnable = !!::Settings(config::prefsKey)
-            .get("fastGraphics", gl::hasAuxBuffers());
-
         return true;
     }
 
@@ -581,8 +557,6 @@ struct Display : DrawData,
         context(0),
         font(0),
         barWidth(1),
-        bkgCached(0),
-        bkgCacheEnable(0),
         freeze(0)
     {
         data = this;
@@ -607,8 +581,6 @@ private:
     Rect            gridRect;
     double          gridLevelScale;
     int             barWidth;
-    bool            bkgCached;
-    bool            bkgCacheEnable;
     bool            freeze;
     Timer           timer;
 };
