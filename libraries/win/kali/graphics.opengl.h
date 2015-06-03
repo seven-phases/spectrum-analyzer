@@ -341,11 +341,11 @@ namespace concavePolygonStencilMask {
 
 // ............................................................................
 
-template <typename T> noalias_ inline_
-void cardinalSpline_(T dst[2], const int src[][2], double t, double s_)
+template <typename T, typename U> noalias_ inline_
+void cardinalSpline_(T dst[2], const U src[][2], U t, U s_)
 {
-    const double s[4] = {1, s_, s_ * s_, s_ * s_ * s_};
-    const double m[4] =
+    const U s[4] = {1, s_, s_ * s_, s_ * s_ * s_};
+    const U m[4] =
     {
         -s[3] * t + 2 * (s[2] * t) - s[1] * t,
          s[3] * (2 - t) - s[2] * (3 - t) + 1,
@@ -355,7 +355,7 @@ void cardinalSpline_(T dst[2], const int src[][2], double t, double s_)
 
     for (int i = 0; i < 2; i++)
     {
-        double x;
+        U x;
 
         x  = src[0][i] * m[0];
         x += src[1][i] * m[1];
@@ -370,8 +370,8 @@ void cardinalSpline_(T dst[2], const int src[][2], double t, double s_)
 #define GL_DRAW_CURVE_ALLOCA_ 1
 #endif
 
-template <int segments> noalias_
-void drawCurve_(const int points[][2], int count, const float fillRect[4][2], float width, float tension = .5f)
+template <int segments> noalias_ 
+void drawCurve_(const float points[][2], int count, const float fillRect[4][2], float width, float tension = .5f)
 {
     #if GL_DRAW_CURVE_ALLOCA_
     #define malloc alloca
@@ -379,8 +379,9 @@ void drawCurve_(const int points[][2], int count, const float fillRect[4][2], fl
     #endif
 
     int n = count;
-    int (*src)[2] = (int (*)[2]) malloc((n + 2) * 2 * sizeof(int));
-    memcpy(src + 1, points, n * 2 * sizeof(int));
+    const int pointSize = 2 * sizeof(float);
+    float  (*src)[2] = (float (*)[2]) malloc((n + 2) * pointSize);
+    memcpy(src + 1, points, n * pointSize);
     src[0][0]     = src[1][0];
     src[0][1]     = src[1][1];
     src[n + 1][0] = src[n][0];
@@ -388,17 +389,17 @@ void drawCurve_(const int points[][2], int count, const float fillRect[4][2], fl
 
     n -= 1;
     float (*p)[segments][2] = (float (*)[segments][2])
-        malloc((n * segments + 1 + 4) * 2 * sizeof(float));
+        malloc((n * segments + 1 + 4) * pointSize);
 
     for (int i = 0; i < n; i++)
         for (int j = 0; j < segments; j++)
             cardinalSpline_(p[i][j], src + i,
-                tension, (1. / segments) * j);
+                tension, (1.f / segments) * j);
 
     p[n][0][0] = float(src[n + 1][0]);
     p[n][0][1] = float(src[n + 1][1]);
     if (fillRect)
-        memcpy(p[n][1], fillRect, 4 * 2 * sizeof(float));
+        memcpy(p[n][1], fillRect, 4 * pointSize);
 
     n = n * segments + 1;
     glVertexPointer(2, GL_FLOAT, 0, p);

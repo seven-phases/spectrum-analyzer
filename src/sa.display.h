@@ -61,14 +61,14 @@ struct Display : DrawData,
     }
 
     template <settings::Index Color, settings::Index Width, typename T>
-    void drawCurve(int p[][2], int n, const T& level, bool fill) const
+    void drawCurve(float p[][2], int n, const T& level, bool fill) const
     {
         using namespace config;
 
         n -= 2;
+        const double ceil = settings(levelCeil) * gridLevelScale;
         for (int i = 0; i < n; i++)
-            p[i + 1][1] = int(gridLevelScale
-                * (settings(levelCeil) - level[i]));
+            p[i + 1][1] = float(ceil - level[i] * gridLevelScale);
 
         p[0][1] = p[1][1] * 2 - p[2][1];
         if (p[n - 1][1] < p[n][1])
@@ -122,9 +122,8 @@ struct Display : DrawData,
 
         // bar x points
 
-        int p[MaxBands][4][2];
         const int n = data->nBands;
-
+        int p[MaxBands][4][2];
         w = max(barWidth, (barWidth + barPad + 1) >> 1);
         int v = barWidth + barPad - w;
         for (int i = 0; i < n; i++)
@@ -135,13 +134,12 @@ struct Display : DrawData,
 
         // curve x points
 
-        int pp[MaxBands + 2][2];
-        w = barWidth;
-        x = gridRect.x + barPad + 1 + w / 2;
+        float pp[MaxBands + 2][2];
+        float xx = gridRect.x + barPad + (w + 1) * .5f;
+        w = barWidth + barPad;
         for (int i = 0; i < n; i++)
         {
-            pp[i + 1][0] = x;
-            x += w + barPad;
+            pp[i + 1][0] = xx; xx += w;
         }
         pp[0][0]     = pp[1][0] - (w + barPad);
         pp[n + 1][0] = pp[n][0] + (w + barPad);
