@@ -16,12 +16,9 @@ Required tools:
 Building:
 
 1. Install WDK and VST SDK.
-2. Specify their paths in `build/wdk71/paths.cmd` file (run `build-release.cmd` to create this file for you). For example:
-```
-set WDKROOT=E:\WDK
-set VSTSDKROOT=C:\Foo\Steinberg\VST3SDK
-```
-3. Run `build/wdk71/build-release.cmd` script.
+2. Specify their paths in `build/wdk71/paths.cmd` file (run `build-release.cmd` to create this file for you). For example:<pre>`set WDKROOT=E:\WDK
+set VSTSDKROOT=C:\Foo\Steinberg\VST3SDK`</pre>
+3. To compile the plugin run `build/wdk71/build-release.cmd` script.
 4. On a successful build (run the script via `cmd` console to see errors and warnings) the compiled binaries will appear in the `release` directory (`x86` and `x64` respectively).
 
 ## More info
