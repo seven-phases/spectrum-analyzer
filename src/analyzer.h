@@ -308,7 +308,7 @@ public:
 
     struct Band
     {
-        typedef sp::m4x32f T;
+        typedef sp::m4f T;
         enum {N = T::size};    // stride
 
         T k[Filter::Coeff];    // coeff

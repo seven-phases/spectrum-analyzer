@@ -52,7 +52,7 @@ struct array <float, 4, SSE>
     operator m128 () const {return _mm_load_ps(value);}
 };
 
-typedef array <float, 4, SSE> m4x32f;
+typedef array <float, 4, SSE> m4f;
 
 // ............................................................................
 

@@ -9,6 +9,7 @@
 #include <gl/gl.h>
 
 #include "kali/dbgutils.h"
+#include "sp/curves.h"
 
 // ............................................................................
 
@@ -322,7 +323,7 @@ inline void drawRectGradient(const Rect& r, const int (&color)[4])
 inline void drawRectDiagonalGradient(const Rect& r, int color1, int color2) {
     int c3 = ((color1 & 0xFEFEFEFEu) >> 1)
            + ((color2 & 0xFEFEFEFEu) >> 1);
-    int cc[4] = {color1, c3, color2, c3}; 
+    int cc[4] = {color1, c3, color2, c3};
     drawRectGradient(r, cc);
 }
 
@@ -348,67 +349,29 @@ namespace concavePolygonStencilMask {
 
 // ............................................................................
 
-template <typename T, typename U> noalias_ inline_
-void cardinalSpline_(T dst[2], const U src[][2], U t, U s_)
-{
-    const U s[4] = {1, s_, s_ * s_, s_ * s_ * s_};
-    const U m[4] =
-    {
-        -s[3] * t + 2 * (s[2] * t) - s[1] * t,
-         s[3] * (2 - t) - s[2] * (3 - t) + 1,
-        -s[3] * (2 - t) + s[2] * (3 - 2 * t) + s[1] * t,
-         s[3] * t - s[2] * t,
-    };
-
-    for (int i = 0; i < 2; i++)
-    {
-        U x;
-
-        x  = src[0][i] * m[0];
-        x += src[1][i] * m[1];
-        x += src[2][i] * m[2];
-        x += src[3][i] * m[3];
-
-        dst[i] = T(x);
-    }
-}
-
 #ifndef GL_DRAW_CURVE_ALLOCA_
 #define GL_DRAW_CURVE_ALLOCA_ 1
 #endif
 
 template <int segments> noalias_
-void drawCurve_(const float points[][2], int count, const float fillRect[4][2], float width, float tension = .5f)
+void drawCurve_(const float points[][2], int count, const float fillRect[4][2], float width)
 {
     #if GL_DRAW_CURVE_ALLOCA_
     #define malloc alloca
     #define free(p)
     #endif
 
-    int n = count;
+    const sp::CardinalSpline <segments> spline;
     const int pointSize = 2 * sizeof(float);
-    float (*src)[2] = (float (*)[2]) malloc((n + 2) * pointSize);
-    memcpy(src + 1, points, n * pointSize);
-    src[0][0]     = src[1][0];
-    src[0][1]     = src[1][1];
-    src[n + 1][0] = src[n][0];
-    src[n + 1][1] = src[n][1];
+    const int n = spline.count(count);
 
-    n -= 1;
-    float (*p)[segments][2] = (float (*)[segments][2])
-        malloc((n * segments + 1 + 4) * pointSize);
+    float (*p)[2] = (float (*)[2])
+        malloc((n + 4 + 16) * pointSize);
+    spline(p, points, count);
 
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < segments; j++)
-            cardinalSpline_(p[i][j], src + i,
-                tension, (1.f / segments) * j);
-
-    p[n][0][0] = float(src[n + 1][0]);
-    p[n][0][1] = float(src[n + 1][1]);
     if (fillRect)
-        memcpy(p[n][1], fillRect, 4 * pointSize);
+        memcpy(p + n, fillRect, 4 * pointSize);
 
-    n = n * segments + 1;
     glVertexPointer(2, GL_FLOAT, 0, p);
 
     if (fillRect) {
@@ -419,7 +382,7 @@ void drawCurve_(const float points[][2], int count, const float fillRect[4][2], 
         glDrawArrays(GL_POLYGON, 0, n + 2);
         glTranslatef(0, +.5f * width, 0);
         mask::end();
-        
+
         // fill
         glDrawArrays(GL_QUADS, n, 4);
         glDisable(GL_STENCIL_TEST);
@@ -430,7 +393,6 @@ void drawCurve_(const float points[][2], int count, const float fillRect[4][2], 
     glDrawArrays(GL_LINE_STRIP, 0, n);
 
     free(p);
-    free(src);
 
     #if GL_DRAW_CURVE_ALLOCA_
     #undef malloc
