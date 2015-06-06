@@ -2,8 +2,6 @@
 #ifndef GL_INCLUDED
 #define GL_INCLUDED
 
-#pragma comment(lib, "opengl32.lib")
-
 #include <malloc.h>
 #include <windows.h>
 #include <gl/gl.h>
