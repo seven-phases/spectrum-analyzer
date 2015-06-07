@@ -39,7 +39,7 @@ struct Resizer : ui::native::LayerBase
                 tf
                 curRect  = r;
                 return ::SetWindowPos(handle, 0, r.x, r.y, r.w, r.h,
-                    SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOREDRAW | SWP_SHOWWINDOW);
+                    SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS | SWP_SHOWWINDOW);
             }
         }
 
