@@ -68,12 +68,16 @@ struct Plugin :
     }
 
     template <typename T> inline_
-    void bypass(const T* const* in, T* const* out, int n) const
+    static void bypass(const T* const* in, T* const* out, int n)
     {
         const T* in0  =  in[0];
         const T* in1  =  in[1];
               T* out0 = out[0];
               T* out1 = out[1];
+
+        if ((in0 == out0) &&
+            (in1 == out1))
+                return;
 
         while (--n >= 0)
         {
