@@ -4,6 +4,7 @@
 
 #include "kali/ui/native.h"
 #include "sa.settings.h"
+#include "sa.self-install.h"
 
 // ............................................................................
 
@@ -114,6 +115,8 @@ struct Editor : LayerBase
     {
         tf
         shared.editor = this;
+
+        installColors();
 
         Font::Scale c(Font::main().scale());
         int x = c.x(6);
@@ -438,11 +441,11 @@ struct Editor : LayerBase
     static void loadCustomColors()
     {
         ::Settings key(config::colorsKey);
-        char name[4] = {'.', 0, 0, 0};
+        char name[] = ".a";
         for (int i = 0; i < 16; i++)
         {
-            name[1] = char(i + 'a');
             ColorWell::Type::custom(i) = key.get(name, 0x101010 * i);
+            ++name[1];
         }
     }
 
