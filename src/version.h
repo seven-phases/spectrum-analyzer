@@ -1,5 +1,5 @@
 
-#define VER       1,0,8
+#define VER       1,0,9
 #define NAME      "Spectrum Analyzer"
 #define COMPANY   "Seven Phases"
 #define COPYRIGHT "© Max Mikhailov, 2009-2015"

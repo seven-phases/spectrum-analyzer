@@ -1,5 +1,15 @@
 *For binaries changelog see [releases](https://github.com/seven-phases/spectrum-analyzer/releases)*
 
+## 1.09
+
+2015-06-19
+
+ - allow to save current settings as default
+ - put factory colour schemes into dll
+ - suppress redundant bypass where not necessarily
+ - fix (?) background garbage when plugin window is moved (XP only?)
+ - rework curve interpolation code
+
 ## 1.08
 
 2015-06-04
