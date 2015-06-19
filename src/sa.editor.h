@@ -122,6 +122,7 @@ struct Editor : LayerBase
         int x = c.x(6);
         int y = c.y(7);
         tabs = widget::Ctor<LayerTabs>(this, Rect(x, y));
+        tabs->callback.to(this, &This::tabChanged);
         initSettingsTab();
         initColorsTab(c);
         initPrefsTab(c);
@@ -132,9 +133,13 @@ struct Editor : LayerBase
             - c.x(75+7), y + 3, c.x(75), c.y(15)),
             string("v%s%s", VERSION_STR, DBG ? "-dbg" : ""));
 
-        x += c.x(7) + s.w;
         y += c.y(6) + s.h;
-        // y += c.y(8) + c.y(23);
+        saveAsDefault = widget::Ctor<Button>(this, 
+            Rect(x, y, c.x(100), c.y(23)), "Save As Default");
+        saveAsDefault->callback.to(this, &This::saveDefaults);
+
+        x += c.x(7) + s.w;
+        y += c.y(7) + c.y(23);
         this->size(x, y);
         this->title(NAME" Settings");
 
@@ -161,6 +166,11 @@ struct Editor : LayerBase
         app->loadLayer(tag, this, layer);
         tabs->add(tag, layer);
         return layer;
+    }
+
+    void tabChanged(int value)
+    {
+        saveAsDefault->visible(!value);
     }
 
     // ........................................................................
@@ -275,6 +285,13 @@ struct Editor : LayerBase
                 widget[i].enable(depended[i].value
                     == (value & depended[i].mask));
         }
+    }
+
+    void saveDefaults()
+    {
+        ::Settings key(config::prefsKey);
+        for (int i = 0; i < SettingsCount; i++)
+            key.set(shared.settings.name(i), shared.settings(i));
     }
 
     // ........................................................................
@@ -505,7 +522,7 @@ private:
     sa::Shared&  shared;
     Settings     settings;
     LayerTabs    tabs;
-    Button       display;
+    Button       saveAsDefault;
     Combo        scheme;
     Compound     widget  [SettingsCount];
     ColorWell    color   [ColorsCount];

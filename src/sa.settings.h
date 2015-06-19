@@ -449,9 +449,12 @@ struct Defaults
 
         Type v(value + SettingsIndex);
         v.defaults();
-        ::Settings key(colorsKey);
+        ::Settings pkey(prefsKey);
+        for (int i = 0; i < ColorsIndex; i++)
+            v(i, pkey.get(v.name(i), v(i)), false);
+        ::Settings ckey(colorsKey);
         for (int i = ColorsIndex; i < Count; i++)
-            v(i, key.get(v.name(i), v(i)), false);
+            v(i, ckey.get(v.name(i), v(i)), false);
     }
 
 private:
