@@ -298,7 +298,7 @@ struct Display : DrawData,
                + ((cb & 0xFEFEFEFEu) >> 1);
         gl::color(cc);
 
-        int mx = mousePos.x - r.x + bar;
+        int mx = mousePos.x - r.x - bar;
         int gx = r.w - bar * 2 - 2;
         double freq = freqMin * exp
             (log(freqMax / freqMin) * mx / gx);
